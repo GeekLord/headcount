@@ -28,6 +28,29 @@ recorded rather than being deleted.
 | D14 | Enforcing the surface map in CI | ✅ Resolved |
 | D15 | PR #2 readiness and merge timing | ✅ Resolved |
 | D16 | Repo visibility versus marketplace distribution | ✅ Resolved |
+| D17 | Which department is the next real gap | ✅ Resolved |
+| D18 | Repository visibility, now that all content is original | ✅ Resolved |
+| D19 | README drift | ✅ Resolved |
+| D20 | Publishing steps that need your hands | ✅ Resolved |
+| D21 | MIT or Apache-2.0 for the long term | ✅ Resolved |
+| D22 | What to call this | ✅ Resolved |
+| D23 | Buttoning up the repository now that it is public | ✅ Resolved |
+| D24 | Whether to add sponsorship | ✅ Resolved |
+| D25 | Whether to register a domain for the About field | ✅ Resolved |
+| D26 | Where project management lives | ✅ Resolved |
+| D27 | Splitting CIO-side IT operations out of `technology` | ✅ Resolved |
+| D28 | US English as house style | ✅ Resolved |
+| D29 | Publishing the org chart so the README can link to it | ✅ Resolved |
+| D30 | Coverage QC against public occupational taxonomies | ✅ Resolved |
+| D31 | Authority as a second axis on the surface map | ✅ Resolved |
+| D32 | Extending the skill-reference checker to skill bodies | ✅ Resolved |
+| D33 | US English check rejects the plural of "analysis" | ✅ Resolved |
+| D34 | Two skills claim social graphics | ✅ Resolved |
+| D35 | Whether description shape is a checkable convention | ✅ Resolved |
+| D36 | Where emitted vertical repositories live | ✅ Resolved |
+| D37 | Authoritative sources as a catalog of references | ✅ Resolved |
+| D38 | Running in ChatGPT as well as Claude Code | ✅ Resolved |
+| D39 | A vertical that brings its own department | ✅ Resolved |
 
 ---
 
@@ -390,7 +413,7 @@ of decisions.
 | 7 | Deepen `operations`, then `finance`, then `people` | D10 | — | ✅ done |
 | 8 | Catalog the other organizations' public repos — no import | D11 | — | ✂️ dropped, D30 |
 | 9 | ~~Separate session for the private sweep~~ | D11 | — | ✂️ dropped, D30 |
-| 10 | Build the vertical generator: core, per-vertical config, one-way emit | D8 | — | |
+| 10 | Build the vertical generator: core, per-vertical config, one-way emit | D8 | — | ✅ done, D36 |
 | 11 | Revisit repo visibility | D16 | after 1 | ✅ done |
 
 Items 1–4 can proceed in parallel; all four land before item 5. Items 8 and 9 were dropped in D30.
@@ -1144,3 +1167,226 @@ body both moved, so the trigger and the content agree.
 The one-pager section kept its last bullet in changed form. It had been about a social graphic at
 thumbnail size; it is now about a one-pager's real reading contexts — printed, attached, projected —
 which is the same lesson applied to the surface this skill actually keeps.
+
+---
+
+## D35. Whether description shape is a checkable convention — ✅ Resolved
+
+An outside read of all 172 skills reported that descriptions do not follow one pattern. Some open
+with a capability sentence and then a `Use this to…` trigger sentence; some run the two together;
+some name a sibling skill to route away from, most do not. Two checks already constrain
+descriptions — a minimum length, and the promise-versus-coverage relationship that D34 came out of
+— but nothing constrains their shape.
+
+This is a convention question rather than a defect, and it touches every skill in the tree, so it
+is logged rather than decided.
+
+- **(a) Leave shape unconstrained.** ← **chosen.** The two checks that exist catch the
+  failures that actually cost something: a description too thin to route on, and a description
+  that promises what the body does not cover. Shape is not one of those. Normalizing 172
+  descriptions to a template would be a large diff whose only beneficiary is the reader of the
+  diff.
+- (b) Fix a two-sentence template — capability, then trigger — and normalize all 172, with a check
+  to hold it. Consistent, and the check is easy to write. It is also 172 files of churn for a
+  problem no one has reported hitting.
+- (c) Require only the trigger sentence, leaving the rest free. Half the discipline for a third of
+  the churn, but "a sentence beginning `Use this`" is the part a checker can verify and the part
+  that matters least — the trigger's *content* is what routes, and no check can read that.
+
+**Recommendation: (a).**
+
+**Resolution: (a).** Nothing changes in the tree. The two checks that exist stay the whole of what
+is enforced about a description: it must be substantial enough to route on, and it must not promise
+what the body does not cover. Shape is left to whoever writes the skill.
+
+Recorded so the next full read does not re-raise it as a defect: the variation is deliberate, not
+drift. A description that names a sibling skill does so because that pair actually collides; one
+that runs capability and trigger together does so because the sentence reads better that way. A
+template would flatten both, and the part a checker can verify — that a sentence beginning `Use
+this` exists — is the part that matters least. What routes a request is the trigger's content, and
+no check can read that.
+
+**One item in the same report needs no decision, recorded here so the next read does not re-raise
+it.** The figure "~24 agents over a 1,500-file monorepo" in `executive:agent-hierarchy` was read as
+a claim about this roster, which currently runs 17 builders and 2 reviewers. It is not: both
+instances say the method was *extracted from* a working implementation of that size. The sentence
+describes the source the method came from, and changing the number would make it wrong.
+
+---
+
+## D36. Where emitted vertical repositories live — ✅ Resolved
+
+D8 resolved the vertical architecture to template-plus-generator with one-way emit, and roadmap item
+10 was to build it. Building it raised a question D8 did not answer: what happens to the output.
+
+Every other generated artifact in this repository — the README, the org chart, the social card — is
+committed, and a `--check` mode fails the build when the committed copy drifts from what the
+generator produces. Applying that pattern here would mean committing an entire second copy of the
+tree per vertical.
+
+- **(a) Emit to a gitignored `dist/`, and verify by emitting to a temporary directory and running
+  the emitted repository's own checks against it.** ← **chosen**
+- (b) Commit the emitted tree and `--check` it like the other generated documents. Consistent with
+  the existing pattern, and reviewable in a diff. It also roughly doubles the repository per
+  vertical, and — decisively — puts a hand-editable copy of the output in front of every
+  contributor, which is the one thing D8's rule forbids. A `--check` failure would read as "the
+  generated copy is stale" long after someone had already edited it.
+- (c) Emit straight to the downstream repository from CI. Removes the local copy entirely, at the
+  cost of making every push to this repository a publish. Publishing should be a deliberate act.
+
+**Resolution: (a).** The invariant worth holding is not "a stored copy matches the generator" but
+"the generator produces a repository that is sound." `--verify` states that directly: it emits into
+a temporary directory, initializes it the way a consumer's clone would be, runs the emitted
+repository's checks, and keeps nothing. CI runs it on every push, so the emit cannot rot unnoticed.
+
+**Two consequences worth recording.**
+
+The emitted repository does not carry the three document generators or their checks. Its README is
+written by `build-vertical.py`, so a "README is current" check downstream would be verifying the
+wrong generator; freshness is guaranteed upstream instead. It carries the other seven checks, which
+still mean what they say about a tree of skills.
+
+`verticals/**` is a new surface with its own owner, and it is the second row marked `proposes`. A
+change inside a department is wrong in one department of one repository. A change inside a vertical
+is emitted into a distributable repository carrying industry-specific advice, and because the emit
+is one-way, nothing downstream can correct it locally. The generator itself stays with `repo-meta`
+alongside the other scripts — writing industry advice and maintaining the tool that ships it are
+different jobs.
+
+---
+
+## D37. Authoritative sources as a catalog of references — ✅ Resolved
+
+A skill states what a competent practitioner knows. It does not state what the regulator published
+last month, and it cannot: the catalog is written once and the obligation moves. The ask was for
+each skill to carry the outside authorities an agent should check in real time — tax guidance,
+employment law by jurisdiction, security control catalogs, standards bodies, public datasets.
+
+The framing offered was "open source or MIT/Apache licensed sources." Investigating that turned out
+to be the decision, because **most of what a professional must cite is not open**, and the examples
+named make the point: ISO standards are sold, SANS papers are copyrighted, the FASB Codification is
+free only behind an account. What *is* freely usable is narrower and more valuable than it looks —
+US federal works are public domain by statute, statutes and regulations are uncopyrightable as
+government edicts, and EU legal texts are reusable with attribution.
+
+So the catalog cannot be a list of things we may copy. It has to be a list of things an agent may
+*read*, each carrying what it may then do with what it read.
+
+- **(a) A catalog of references, with a closed license vocabulary, emitted per skill.** ← **chosen**
+- (b) Vendor the material that permits it — US public-domain control catalogs, CISA KEV — so a
+  skill works offline. Reverses D3 and D6, needs a carve-out in the provenance check, and
+  reintroduces the staleness the catalog exists to remove: a snapshot of a live feed is wrong the
+  day after it is taken.
+- (c) Put the URLs inline in each skill body. No new machinery, and no way to check that a link
+  still resolves, no way to record what may be done with it, and one source serving three
+  departments becomes three copies to update.
+
+**Resolution: (a).** `sources/*.toml` maps a source to the skills whose answers it settles.
+`scripts/build-sources.py` emits each skill's list into its own `references/sources.md`, which is
+where Claude Code and ChatGPT both load a skill's supporting files from on demand — so the agent
+gets its own sources and not the other 171 skills'.
+
+**The license class is the load-bearing field**, and it is a closed vocabulary the checker enforces.
+Three of its ten values — `free-to-read`, `registration-required`, `paywalled` — exist specifically
+to mark the sources most often assumed open and not. An entry classed wrongly as open invites an
+agent to reproduce text it was only ever allowed to cite. The emitted file states the consequence in
+the imperative next to each source rather than leaving it to a table elsewhere.
+
+**Three things were built to keep it honest rather than merely present.**
+
+A skill with sources must carry a `## Sources` section, and a skill carrying one must have sources.
+Without that pairing the feature rots in both directions at once — a file nobody is told about, or a
+pointer to a file no longer emitted. The check enforces it both ways.
+
+Reachability is checked weekly on its own schedule, not on every push. A publisher being briefly
+down is not a reason to fail an unrelated pull request, and a check that fails for reasons outside
+the diff is a check people learn to ignore. All 37 initial URLs were verified reachable before the
+`checked` dates were claimed, and three were wrong at first writing.
+
+The provenance check gained a narrow waiver, because a file whose job is to classify licenses must
+be able to name license families. It waives the *names* only; actual license text is still caught by
+its body, which the waiver was tested against by pasting some in and watching it fail.
+
+**Coverage is `security`, `legal-risk` and `finance` first** — the three departments where citing
+the authority changes the answer rather than decorating it. Extending it is adding entries, not
+changing the mechanism.
+
+---
+
+## D38. Running in ChatGPT as well as Claude Code — ✅ Resolved
+
+The ask was to port the catalog so it works outside Claude Code. Checking what a port now requires
+turned out to make the decision, because the answer changed: **ChatGPT reads the same `SKILL.md`** —
+YAML frontmatter with `name` and `description`, a body, and optional `scripts/`, `references/` and
+`assets/` alongside. There is no content to port. What differs is where each tool looks for the
+manifests that describe a bundle.
+
+| | Plugin manifest | Marketplace |
+|---|---|---|
+| Claude Code | `plugins/<dept>/.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json` |
+| OpenAI / Codex | `plugins/<dept>/.codex-plugin/plugin.json` | `.agents/plugins/marketplace.json` |
+
+- **(a) A second set of manifests over the same tree, generated and `--check`ed.** ← **chosen**
+- (b) Emit a standalone `headcount-openai` repository, the way `build-vertical.py` emits verticals.
+  Consistent with the machinery already built, and wrong here: a vertical emits a *different*
+  catalog, while this would emit the same 172 skills twice. Two install sources for identical
+  content, and every skill fix needing a re-emit before it reaches half the users.
+- (c) Commit a `Codex/` copy of the tree. This was offered to the repository as a contribution. It
+  is the fork D8 rejected, and the copy was a month stale before it was reviewed.
+
+**Resolution: (a).** Sixteen small manifests, a marketplace file and an `AGENTS.md`, all generated
+from the Claude manifests and the tree, all verified by `--check`. One clone installs in either
+tool, and a skill fixed once is fixed for both because there is only one copy of it.
+
+**Two things this settles beyond the mechanism.**
+
+The per-department split stops being merely tidy and becomes required. ChatGPT budgets skill
+descriptions at roughly 8,000 characters; 172 descriptions is about 50,000. Installing the whole
+catalog at once was never the intended use and on that surface it is not a possible one.
+
+`AGENTS.md` is generated rather than written, because it states counts. It is read by Codex, Cursor,
+Gemini CLI and Copilot among others, and describes the repository to an agent working *on* it —
+which is a different job from the skills, which describe how to do the work of a function.
+
+**The Codex category vocabulary is not published**, and Codex's own marketplace uses a small set of
+broad labels. Every department here is a business function, so all sixteen carry one conservative
+label rather than sixteen guesses. Revisit if a vocabulary is documented.
+
+---
+
+## D39. A vertical that brings its own department — ✅ Resolved
+
+The education vertical was the second one built, and it immediately failed in a way industrial never
+could. Industrial's skills belong to `operations` and `people`, which already exist; the generator
+only ever had to add skills to departments it was already emitting. A curriculum function has no
+home in a cross-industry core, because it is not a thinner version of anything every company has.
+
+- **(a) Let a vertical declare a department, and have the generator do everything a new department
+  requires.** ← **chosen**
+- (b) File the education skills under an existing department — `product`, as curriculum-as-product,
+  or `operations`. Needs no code, and misroutes every request that reaches it: a question about
+  standards alignment loading a software product skill is the silent-collision failure
+  `technology:skill-authoring` names.
+- (c) Add `education` to the core, excluded from every other vertical. Puts a department nobody
+  outside one industry wants into the default install, and inverts the exclusion list from a rare
+  exception into the normal case.
+
+**Resolution: (a).** A `[[department]]` entry in the vertical config, and the generator does what
+the surface map requires of a new department because nobody is there to do it by hand: the plugin
+manifest, the marketplace entry, the roster row, the surface block, and the charter — all in the
+same emit, which is the rule the map states for a new department.
+
+**Two adjacent things this exposed and fixed.**
+
+Vertical skills were being copied as a lone `SKILL.md` rather than as a directory, so a skill's
+`references/` never shipped. That went unnoticed while no vertical skill had any; the source catalog
+gave education four that do, and the pointer would have shipped without its target.
+
+The catalog could not reach a vertical's skills at all, because it resolved `department:skill` only
+against `plugins/`. That was backwards: a vertical is where an outside authority matters *most*,
+since the advice is industry-specific and therefore regulated by somebody. Both the checker and the
+emitter now resolve against the core and every vertical.
+
+**The emitted map drops the `verticals` and `sources` rows.** Their inputs stay upstream, so
+downstream those rows would claim paths that are not there — a map that governs nothing, which is
+the condition the authority column was added to eliminate.

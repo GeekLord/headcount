@@ -1,9 +1,14 @@
 ---
 name: video-content
-description: Plans and scripts short-form and long-form video, and designs the packaging — titles, thumbnails, and openings — that determines whether it gets watched. Use this to script a video, plan a series, fix retention or click-through problems, design thumbnail and title concepts, or turn written content into video.
+description: Plans and scripts short-form and long-form video, and designs the packaging — titles, thumbnails, and openings — that determines whether it gets watched. Use this to script a video, plan a series, fix retention or click-through problems, design thumbnail and title concepts, or turn written content into video. For a YouTube channel specifically — idea selection, retention teardowns, and channel-level strategy — use `youtube-producer`.
 ---
 
 # Video content
+
+This covers video as a format across platforms — short-form, long-form, and the packaging that
+decides whether either gets watched. `youtube-producer` covers one platform in depth: channel
+strategy, idea selection against a channel's history, and retention teardowns against YouTube's
+own curves. When the question is about a channel rather than a video, it belongs there.
 
 ## Packaging is most of the outcome
 
@@ -49,6 +54,13 @@ uniformly intense video is as tiring as a flat one.
 Plan derivatives before filming, not after. Segments intended to stand alone get shot to stand
 alone. Extracting short-form from a video not built for it produces clips that need context they do
 not have.
+
+## Sources
+
+`references/sources.md` in this skill lists the outside authorities that settle the questions
+here — what each one is authoritative for, and what you may do with it. Check them before
+answering on anything they cover, and cite what you used. Most are free to read and not free
+to reproduce; the use note on each is binding.
 
 ## Tooling
 

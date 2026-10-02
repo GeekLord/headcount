@@ -49,6 +49,22 @@ def load_departments():
 ORDER = load_departments()
 
 
+def _catalog_counts():
+    """Catalog totals, read from the catalog so the README cannot claim a number it does not hold."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("check_sources", "scripts/check-sources.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    entries = module.load()
+    skills = {ref for _, e in entries for ref in e.get("skills", [])}
+    quotable = {"public-domain-usgov", "public-domain", "cc0", "cc-by", "open-data",
+                "attribution-required"}
+    return len(entries), len(skills), sum(1 for _, e in entries if e["license"] in quotable)
+
+
+SOURCE_COUNT, SOURCE_SKILLS, SOURCE_QUOTABLE = _catalog_counts()
+
+
 def summarize(path, limit=165):
     text = open(path, encoding="utf-8").read()
     front = re.match(r"^---\s*\n(.*?)\n---", text, re.S).group(1)
@@ -67,18 +83,42 @@ def skills(dept):
 total = sum(len(skills(d)) for d, _, _ in ORDER)
 # Badge counts come from the same tree walk as the tables below, so they cannot drift from
 # reality — a wrong count fails `build-readme.py --check` in CI like any other staleness.
-B = "https://img.shields.io/badge"
+# Two bases, and the difference matters: the static `/badge/` endpoint takes a literal
+# label-message-color triple, while the live endpoints hang off the root. Interpolating the
+# `/badge` base into a `github/...` path produces a URL that returns a picture of itself.
+SHIELDS = "https://img.shields.io"
+B = f"{SHIELDS}/badge"
+REPO = "cbrock84/headcount"
 out = [
     '<h1 align="center">headcount</h1>',
     "",
     '<p align="center"><b>Add a department, not a prompt.</b></p>',
     "",
     '<p align="center">',
-    f'  <a href="https://claude.com/claude-code"><img alt="Built for Claude Code"'
-    f' src="{B}/built%20for-Claude%20Code-D97757?style=flat-square"></a>',
+    # "Built for Claude Code" stopped being true when the ChatGPT manifests landed. Both tools read
+    # the same skills from this tree, and the badge is the first thing anyone reads.
+    f'  <a href="AGENTS.md"><img alt="Runs in Claude Code and ChatGPT"'
+    f' src="{B}/runs%20in-Claude%20Code%20%C2%B7%20ChatGPT-D97757?style=flat-square"></a>',
     f'  <img alt="{len(ORDER)} departments" src="{B}/departments-{len(ORDER)}-3F4B5B?style=flat-square">',
     f'  <img alt="{total} skills" src="{B}/skills-{total}-3F4B5B?style=flat-square">',
+    f'  <a href="docs/SOURCES.md"><img alt="{SOURCE_COUNT} cited sources"'
+    f' src="{B}/cited%20sources-{SOURCE_COUNT}-3F4B5B?style=flat-square"></a>',
     f'  <a href="LICENSE"><img alt="MIT licensed" src="{B}/license-MIT-3F4B5B?style=flat-square"></a>',
+    "</p>",
+    "",
+    # A second row, live rather than generated. The first row says what this is and is computed
+    # from the tree; this one says how it is doing and is fetched when someone loads the page.
+    # The build badge is the one that earns its place: fourteen checks run on every push, and a
+    # reader has no other way to know they pass.
+    '<p align="center">',
+    f'  <a href="https://github.com/{REPO}/actions/workflows/checks.yml"><img alt="Checks"'
+    f' src="{SHIELDS}/github/actions/workflow/status/{REPO}/checks.yml?style=flat-square&label=checks"></a>',
+    f'  <a href="https://github.com/{REPO}/stargazers"><img alt="Stars"'
+    f' src="{SHIELDS}/github/stars/{REPO}?style=flat-square&color=3F4B5B"></a>',
+    f'  <a href="https://github.com/{REPO}/graphs/contributors"><img alt="Contributors"'
+    f' src="{SHIELDS}/github/contributors/{REPO}?style=flat-square&color=3F4B5B"></a>',
+    f'  <img alt="Last commit" src="{SHIELDS}/github/last-commit/{REPO}?style=flat-square&color=3F4B5B">',
+    f'  <img alt="Visitors" src="https://visitor-badge.laobi.icu/badge?page_id={REPO.replace("/", ".")}&title=visitors&color=3F4B5B">',
     f'  <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="{B}/PRs-welcome-2EA043?style=flat-square"></a>',
     "</p>",
     "",
@@ -99,18 +139,26 @@ out = [
     " chart</b></a> — search every skill, open a department, jump to the source.",
     "</p>",
     "",
-    "An agent organization for [Claude Code](https://claude.com/claude-code), structured as a company:",
-    f"a chief executive over {len(ORDER)} departments, {total} skills in total.",
+    "An agent organization structured as a company: a chief executive over",
+    f"{len(ORDER)} departments, {total} skills in total.",
     "",
     "Every department is an independently installable plugin, so a project loads only the functions it",
     "needs rather than all of them at once.",
     "",
     "## Install",
     "",
+    "**[Claude Code](https://claude.com/claude-code)**",
+    "",
     "```",
     "/plugin marketplace add cbrock84/headcount",
     "/plugin install security@headcount",
     "```",
+    "",
+    "**ChatGPT and Codex** — the same repository. Add it as a plugin marketplace, or drop the",
+    "department you want into `.agents/skills/` in your own project.",
+    "",
+    "The skills are identical in both; only the manifests differ, and both sets are generated from",
+    "this tree, so a fix reaches both at once. See `AGENTS.md`.",
     "",
     "Install as many departments as the project needs. Skills are addressed as `department:skill` —",
     "`security:threat-modeling`, `finance:unit-economics` — so names never collide.",
@@ -158,19 +206,48 @@ out += [
     "their blocking findings are not overrulable by the department under review. That is why the CISO",
     "and the CLO report to the chief executive rather than into the function they oversee.",
     "",
+    "## Sources",
+    "",
+    "A skill states what a competent practitioner knows. It cannot state what the regulator",
+    "published last month — it is written once and the obligation moves. So skills that answer",
+    "questions an outside authority settles carry a list of those authorities, in",
+    "`references/sources.md` inside the skill, which is where an agent reads it while answering.",
+    "",
+    f"{SOURCE_COUNT} sources across {SOURCE_SKILLS} skills so far — tax and accounting, law and",
+    "employment, security and controls frameworks, education standards.",
+    "[The full index is in `docs/SOURCES.md`](docs/SOURCES.md).",
+    "",
+    "**References, never copies**, and every entry carries what you may actually do with it. That",
+    "second part is the point: most of what a professional must cite is not open. ISO standards are",
+    "sold, SANS papers are copyrighted, the FASB Codification needs an account — while US federal",
+    "works are public domain by statute and EU legal texts are reusable with attribution.",
+    f"{SOURCE_QUOTABLE} of the {SOURCE_COUNT} are quotable; the rest are read-and-cite, and the entry",
+    "says so in the imperative next to the link.",
+    "",
+    "Links are re-checked weekly by their own workflow rather than on every push, because a",
+    "publisher being briefly down is not a reason to fail an unrelated pull request.",
+    "",
     "## How it is organized",
     "",
     "```",
     "plugins/<department>/",
-    "  .claude-plugin/plugin.json   department manifest",
+    "  .claude-plugin/plugin.json   department manifest, Claude Code",
+    "  .codex-plugin/plugin.json    the same department, ChatGPT and Codex",
     "  skills/<skill>/SKILL.md      frontmatter name equals the directory name",
+    "  skills/<skill>/references/   supporting files, including the skill's sources",
+    ".claude-plugin/marketplace.json  the marketplace Claude Code reads",
+    ".agents/plugins/marketplace.json the same departments, for ChatGPT and Codex",
+    "sources/*.toml                 the source catalog, mapped to the skills it serves",
+    "verticals/<name>/              industry packs, emitted as standalone repositories",
     ".claude/agents/<id>.md         one charter per department",
+    "AGENTS.md                      repository context for any agent working on this repo",
     "docs/AGENT-SURFACES.md         every path has exactly one owner, enforced in CI",
     "docs/DECISION-LOG.md           numbered decisions with options and recommendations",
     "docs/GETTING-STARTED.md        install, what to take first, and how to invoke a skill",
+    "docs/SOURCES.md                every source in the catalog, and what may be done with it",
     "docs/USE-CASES.md              situations worked end to end across departments",
-    "docs/org-chart.html           interactive org chart, searchable across every skill",
-    "docs/index.html               GitHub Pages entry point, redirects to the chart",
+    "docs/org-chart.html            interactive org chart, searchable across every skill",
+    "docs/index.html                GitHub Pages entry point, redirects to the chart",
     "```",
     "",
     "Agents split by **exclusive write surface**, not by topic — a topic split has no checkable",
@@ -183,15 +260,35 @@ out += [
     "./scripts/check-all.sh",
     "```",
     "",
-    "Verifies the surface map is coherent, every skill's frontmatter is valid and unique, no",
-    "third-party license text has appeared, the generated README and social card are current, every",
-    "`department:skill` reference in the docs resolves, spelling is US English, and every manifest",
-    "parses. CI runs the same",
-    "script, so local and CI cannot drift.",
+    "Every check CI runs, in one script. The surface map is coherent; every skill's frontmatter is",
+    "valid and unique; no third-party license text has appeared; the README, social card and org",
+    "chart are current; every `department:skill` reference resolves; spelling is US English; no",
+    "`## Never` block mixes two styles; the source catalog is valid and every skill's source file",
+    "matches it; the ChatGPT manifests match the Claude ones; every vertical emits a repository that",
+    "passes its own checks; and every manifest parses. CI calls this same script, so local and CI",
+    "cannot drift.",
     "",
     "A new department needs its roster row in `docs/AGENT-SURFACES.md`, a surface block, a charter in",
     "`.claude/agents/`, and an entry in `.claude-plugin/marketplace.json` — all in the same change, or",
     "the check fails.",
+    "",
+    "## Contributors",
+    "",
+    # Both images are fetched when the page loads rather than committed, so neither can go stale
+    # and neither adds a binary to the tree. The star chart carries a dark variant because the
+    # plotted line is drawn on a light canvas by default and disappears on GitHub's dark theme.
+    f'<a href="https://github.com/{REPO}/graphs/contributors">',
+    f'  <img alt="Contributors to headcount" src="https://contrib.rocks/image?repo={REPO}">',
+    "</a>",
+    "",
+    "The ChatGPT and Codex support in this repository started as a contribution from",
+    "[@adi-dibra](https://github.com/adi-dibra), who worked out that the same `SKILL.md` files load",
+    "in both tools and that only the manifests differ.",
+    "",
+    "<picture>",
+    f'  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos={REPO}&type=Date&theme=dark">',
+    f'  <img alt="Star history" src="https://api.star-history.com/svg?repos={REPO}&type=Date" width="600">',
+    "</picture>",
     "",
     "## Writing",
     "",

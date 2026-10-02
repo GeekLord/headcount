@@ -2,7 +2,7 @@
 """All content here is original. This is a heuristic backstop, not proof: it catches the common
 shapes of third-party license text and vendored assets. It cannot detect prose copied without a
 notice, so it supplements review rather than replacing it."""
-import glob, os, re, sys
+import fnmatch, glob, os, re, sys
 
 # Markers for the licenses most likely to arrive with vendored material.
 PATTERNS = [
@@ -41,7 +41,31 @@ OWN_LICENSE = "LICENSE"  # ours, and the only one expected
 OWN_LICENSE_MENTION = {"CONTRIBUTING.md", "README.md", "docs/DECISION-LOG.md"}
 OWN_LICENSE_PATTERN = r"\bMIT License\b"
 
-SKIP_DIRS = (".git/",)
+# The source catalog classifies outside material by its license, so naming license families is its
+# job rather than evidence of carrying any. The waiver is for the family *names* only, in the files
+# that document the vocabulary and the agent that maintains it — every other pattern still applies,
+# so actual license text remains caught by its body ("Permission is hereby granted", "Copyright
+# (c)", "Redistribution and use..."), which no real license lacks. This is the same reasoning as the
+# MIT waiver above: a name is a reference, a body is a copy.
+#
+# This originally excluded the catalog files themselves, on the reasoning that entries carry a short
+# slug (`cc-by-sa`) and never a family's prose name. That stopped being true the moment a license
+# became a *source*: a font license is the authority on whether a typeface may be embedded, so its
+# title is the family name. The waiver now covers the catalog and what is generated from it.
+LICENSE_FAMILY_MENTION_GLOBS = (
+    "sources/*.toml",
+    "sources/README.md",
+    ".claude/agents/sources.md",
+    "docs/SOURCES.md",
+    "plugins/*/skills/*/references/sources.md",
+)
+LICENSE_FAMILY_PATTERNS = {r"\bCreative Commons Attribution\b", r"\bMIT License\b",
+                           r"\bApache License\b", r"\bBSD \d-Clause\b",
+                           r"\bMozilla Public License\b", r"\bSIL Open Font License\b"}
+
+# Generated output and build byproducts are not this repository's content. `dist/` in particular
+# is a copy of the tree already being checked, so scanning it doubles every finding.
+SKIP_DIRS = (".git/", "dist/", "__pycache__/")
 
 
 def is_probably_text(path, sniff=4096):
@@ -80,9 +104,12 @@ for path in glob.glob("**/*", recursive=True):
     if not is_probably_text(path):
         continue
     text = open(path, encoding="utf-8", errors="replace").read()
-    waived = OWN_LICENSE_PATTERN if path in OWN_LICENSE_MENTION else None
+    waived = {OWN_LICENSE_PATTERN} if path in OWN_LICENSE_MENTION else set()
+    if any(fnmatch.fnmatch(path.replace(os.sep, "/").lstrip("./"), g)
+           for g in LICENSE_FAMILY_MENTION_GLOBS):
+        waived |= LICENSE_FAMILY_PATTERNS
     for pattern in PATTERNS:
-        if pattern == waived:
+        if pattern in waived:
             continue
         if re.search(pattern, text):
             problems.append(f"{path}: matches {pattern!r}")

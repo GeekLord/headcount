@@ -82,15 +82,22 @@ Strategy functions drift into producing analysis nobody acts on. The defense is 
 work names the decision it serves and the date that decision is needed. Analysis with no decision
 attached is a hobby.
 
+## Sources
+
+`references/sources.md` in this skill lists the outside authorities that settle the questions
+here — what each one is authoritative for, and what you may do with it. Check them before
+answering on anything they cover, and cite what you used. Most are free to read and not free
+to reproduce; the use note on each is binding.
+
 ## Never
 
 - Confuse a plan with a strategy. A sequence of initiatives is not a choice about where to compete.
 - Pursue an acquisition because it is available rather than because it serves a thesis written
-- Do not call a strategy decided until the resourcing artifacts moved
-- Do not produce a competitive map that answers no pending question
   beforehand.
 - Let a strategy survive an assumption being falsified. When the thing you bet on turns out untrue,
   say so and revise.
+- Call a strategy decided before the resourcing artifacts have moved.
+- Produce a competitive map that answers no pending question.
 
 ## Return contract
 

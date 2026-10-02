@@ -3,10 +3,19 @@
 <p align="center"><b>Add a department, not a prompt.</b></p>
 
 <p align="center">
-  <a href="https://claude.com/claude-code"><img alt="Built for Claude Code" src="https://img.shields.io/badge/built%20for-Claude%20Code-D97757?style=flat-square"></a>
+  <a href="AGENTS.md"><img alt="Runs in Claude Code and ChatGPT" src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20ChatGPT-D97757?style=flat-square"></a>
   <img alt="16 departments" src="https://img.shields.io/badge/departments-16-3F4B5B?style=flat-square">
   <img alt="172 skills" src="https://img.shields.io/badge/skills-172-3F4B5B?style=flat-square">
+  <a href="docs/SOURCES.md"><img alt="184 cited sources" src="https://img.shields.io/badge/cited%20sources-184-3F4B5B?style=flat-square"></a>
   <a href="LICENSE"><img alt="MIT licensed" src="https://img.shields.io/badge/license-MIT-3F4B5B?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/cbrock84/headcount/actions/workflows/checks.yml"><img alt="Checks" src="https://img.shields.io/github/actions/workflow/status/cbrock84/headcount/checks.yml?style=flat-square&label=checks"></a>
+  <a href="https://github.com/cbrock84/headcount/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/cbrock84/headcount?style=flat-square&color=3F4B5B"></a>
+  <a href="https://github.com/cbrock84/headcount/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/cbrock84/headcount?style=flat-square&color=3F4B5B"></a>
+  <img alt="Last commit" src="https://img.shields.io/github/last-commit/cbrock84/headcount?style=flat-square&color=3F4B5B">
+  <img alt="Visitors" src="https://visitor-badge.laobi.icu/badge?page_id=cbrock84.headcount&title=visitors&color=3F4B5B">
   <a href="CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-2EA043?style=flat-square"></a>
 </p>
 
@@ -23,18 +32,26 @@
   <a href="https://cbrock84.github.io/headcount/org-chart.html"><b>Open the interactive org chart</b></a> — search every skill, open a department, jump to the source.
 </p>
 
-An agent organization for [Claude Code](https://claude.com/claude-code), structured as a company:
-a chief executive over 16 departments, 172 skills in total.
+An agent organization structured as a company: a chief executive over
+16 departments, 172 skills in total.
 
 Every department is an independently installable plugin, so a project loads only the functions it
 needs rather than all of them at once.
 
 ## Install
 
+**[Claude Code](https://claude.com/claude-code)**
+
 ```
 /plugin marketplace add cbrock84/headcount
 /plugin install security@headcount
 ```
+
+**ChatGPT and Codex** — the same repository. Add it as a plugin marketplace, or drop the
+department you want into `.agents/skills/` in your own project.
+
+The skills are identical in both; only the manifests differ, and both sets are generated from
+this tree, so a fix reaches both at once. See `AGENTS.md`.
 
 Install as many departments as the project needs. Skills are addressed as `department:skill` —
 `security:threat-modeling`, `finance:unit-economics` — so names never collide.
@@ -180,7 +197,7 @@ to as a subagent with its own exclusive write surface.
 | `marketing-copywriting` | Writes and edits marketing copy for any surface — homepage, product and pricing pages, ads, emails, and collateral — and sharpens existing copy that is not working. |
 | `marketing-planning` | Builds the marketing plan of record — objectives, channel mix, budget allocation, sequencing, and the measurement that says whether it worked. |
 | `newsletter-writer` | Writes and edits newsletters and marketing emails people actually open — subject lines, opening, structure, voice, and the conversion turn where there is one. |
-| `partnership-marketing` | Builds reach through other people's audiences — co-marketing partnerships, creator and influencer programs, community building, and affiliate arrangements. |
+| `partnership-marketing` | Builds reach through other people's audiences — co-marketing partnerships, creator and influencer programs, and community building. |
 | `positioning-and-messaging` | Establishes what a product is understood to be, for whom, and instead of what — then turns that into the messaging every other surface inherits. |
 | `product-launch` | Takes something built and gets it into the market — tiering the launch to match what it actually warrants, sequencing internal readiness before external announcemen…. |
 | `public-relations` | Plans and executes earned media — press strategy, journalist outreach, announcements, commentary, and crisis response. |
@@ -371,19 +388,48 @@ to as a subagent with its own exclusive write surface.
 their blocking findings are not overrulable by the department under review. That is why the CISO
 and the CLO report to the chief executive rather than into the function they oversee.
 
+## Sources
+
+A skill states what a competent practitioner knows. It cannot state what the regulator
+published last month — it is written once and the obligation moves. So skills that answer
+questions an outside authority settles carry a list of those authorities, in
+`references/sources.md` inside the skill, which is where an agent reads it while answering.
+
+184 sources across 150 skills so far — tax and accounting, law and
+employment, security and controls frameworks, education standards.
+[The full index is in `docs/SOURCES.md`](docs/SOURCES.md).
+
+**References, never copies**, and every entry carries what you may actually do with it. That
+second part is the point: most of what a professional must cite is not open. ISO standards are
+sold, SANS papers are copyrighted, the FASB Codification needs an account — while US federal
+works are public domain by statute and EU legal texts are reusable with attribution.
+125 of the 184 are quotable; the rest are read-and-cite, and the entry
+says so in the imperative next to the link.
+
+Links are re-checked weekly by their own workflow rather than on every push, because a
+publisher being briefly down is not a reason to fail an unrelated pull request.
+
 ## How it is organized
 
 ```
 plugins/<department>/
-  .claude-plugin/plugin.json   department manifest
+  .claude-plugin/plugin.json   department manifest, Claude Code
+  .codex-plugin/plugin.json    the same department, ChatGPT and Codex
   skills/<skill>/SKILL.md      frontmatter name equals the directory name
+  skills/<skill>/references/   supporting files, including the skill's sources
+.claude-plugin/marketplace.json  the marketplace Claude Code reads
+.agents/plugins/marketplace.json the same departments, for ChatGPT and Codex
+sources/*.toml                 the source catalog, mapped to the skills it serves
+verticals/<name>/              industry packs, emitted as standalone repositories
 .claude/agents/<id>.md         one charter per department
+AGENTS.md                      repository context for any agent working on this repo
 docs/AGENT-SURFACES.md         every path has exactly one owner, enforced in CI
 docs/DECISION-LOG.md           numbered decisions with options and recommendations
 docs/GETTING-STARTED.md        install, what to take first, and how to invoke a skill
+docs/SOURCES.md                every source in the catalog, and what may be done with it
 docs/USE-CASES.md              situations worked end to end across departments
-docs/org-chart.html           interactive org chart, searchable across every skill
-docs/index.html               GitHub Pages entry point, redirects to the chart
+docs/org-chart.html            interactive org chart, searchable across every skill
+docs/index.html                GitHub Pages entry point, redirects to the chart
 ```
 
 Agents split by **exclusive write surface**, not by topic — a topic split has no checkable
@@ -396,15 +442,32 @@ boundary, and two agents working on "SEO" and "UI" both end up in the same file.
 ./scripts/check-all.sh
 ```
 
-Verifies the surface map is coherent, every skill's frontmatter is valid and unique, no
-third-party license text has appeared, the generated README and social card are current, every
-`department:skill` reference in the docs resolves, spelling is US English, and every manifest
-parses. CI runs the same
-script, so local and CI cannot drift.
+Every check CI runs, in one script. The surface map is coherent; every skill's frontmatter is
+valid and unique; no third-party license text has appeared; the README, social card and org
+chart are current; every `department:skill` reference resolves; spelling is US English; no
+`## Never` block mixes two styles; the source catalog is valid and every skill's source file
+matches it; the ChatGPT manifests match the Claude ones; every vertical emits a repository that
+passes its own checks; and every manifest parses. CI calls this same script, so local and CI
+cannot drift.
 
 A new department needs its roster row in `docs/AGENT-SURFACES.md`, a surface block, a charter in
 `.claude/agents/`, and an entry in `.claude-plugin/marketplace.json` — all in the same change, or
 the check fails.
+
+## Contributors
+
+<a href="https://github.com/cbrock84/headcount/graphs/contributors">
+  <img alt="Contributors to headcount" src="https://contrib.rocks/image?repo=cbrock84/headcount">
+</a>
+
+The ChatGPT and Codex support in this repository started as a contribution from
+[@adi-dibra](https://github.com/adi-dibra), who worked out that the same `SKILL.md` files load
+in both tools and that only the manifests differ.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=cbrock84/headcount&type=Date&theme=dark">
+  <img alt="Star history" src="https://api.star-history.com/svg?repos=cbrock84/headcount&type=Date" width="600">
+</picture>
 
 ## Writing
 

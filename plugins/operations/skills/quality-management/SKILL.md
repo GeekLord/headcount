@@ -10,7 +10,7 @@ process that produced the work, so that is where the effort belongs.
 
 ## Define quality as the customer experiences it
 
-A standard nobody outside the team recognises is a preference. State quality in terms a customer
+A standard nobody outside the team recognizes is a preference. State quality in terms a customer
 would agree with: correct, on time, complete, usable — with a threshold, so conformance is a fact
 rather than an opinion.
 
@@ -51,6 +51,13 @@ defects rather than preventing them. Measure at the process level, review trends
 and pair any rate metric with a volume metric so improvement by doing less is visible.
 
 Escaped defects — those the customer found — are the honest measure. Everything else is a proxy.
+
+## Sources
+
+`references/sources.md` in this skill lists the outside authorities that settle the questions
+here — what each one is authoritative for, and what you may do with it. Check them before
+answering on anything they cover, and cite what you used. Most are free to read and not free
+to reproduce; the use note on each is binding.
 
 ## Tooling
 

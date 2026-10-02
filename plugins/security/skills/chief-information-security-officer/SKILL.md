@@ -109,17 +109,23 @@ accepting a finding this role has blocked, or when the security program is not f
 exposure the business is carrying. To Legal & Risk on anything with regulatory or contractual
 consequence — breach notification in particular runs on statutory clocks measured in hours.
 
+## Sources
+
+`references/sources.md` in this skill lists the outside authorities that settle the questions
+here — what each one is authoritative for, and what you may do with it. Check them before
+answering on anything they cover, and cite what you used. Most are free to read and not free
+to reproduce; the use note on each is binding.
+
 ## Never
 
 - Approve an exception without an expiry date and a named owner.
 - Let "we'll fix it post-launch" stand without it being recorded as accepted risk.
 - Treat a passed audit as evidence of security. Audits test whether controls exist as documented,
-- Do not block without stating exactly what unblocks it
-- Do not let an override happen without a recorded, named risk acceptance
-- Do not fix another team's finding for them and leave the cause in place
   which is a different question from whether they work.
 - Block without saying what would unblock. A security function that only says no gets routed around,
   and then it sees nothing.
+- Let an override happen without a recorded, named risk acceptance.
+- Fix another team's finding for them and leave the cause in place.
 
 ## Return contract
 

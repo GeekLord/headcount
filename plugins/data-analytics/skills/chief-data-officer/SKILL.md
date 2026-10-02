@@ -87,16 +87,23 @@ reported performance. To Legal & Risk before any new use of personal data — pa
 fine-tuning models on customer data, where the lawful basis for the original collection rarely
 covers it.
 
+## Sources
+
+`references/sources.md` in this skill lists the outside authorities that settle the questions
+here — what each one is authoritative for, and what you may do with it. Check them before
+answering on anything they cover, and cite what you used. Most are free to read and not free
+to reproduce; the use note on each is binding.
+
 ## Never
 
 - Let a metric be defined by whoever reports it.
 - Ship a model with no evaluation set and no monitoring. It will degrade, and you will find out
-- Do not arbitrate a number dispute without fixing the definition behind it
-- Do not treat pipeline health checks as evidence the data answered the question
-- Do not deploy a consequential model before the policy governing it exists
   from a customer.
 - Grant access to a dataset without knowing what is in it.
 - Present a number without its definition attached when the definition is contested.
+- Arbitrate a number dispute without fixing the definition behind it.
+- Treat pipeline health checks as evidence the data answered the question.
+- Deploy a consequential model before the policy governing it exists.
 
 ## Return contract
 

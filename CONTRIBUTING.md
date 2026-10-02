@@ -50,14 +50,22 @@ departments are split by exclusive write surface rather than by topic.
 ./scripts/check-all.sh
 ```
 
-Four checks, the same ones CI runs:
+Every check CI runs, in one script — the workflow calls this same file, so the two cannot drift:
 
 | Check | What it enforces |
 |---|---|
 | Surface map | Every tracked path has exactly one owner |
 | Skill frontmatter | `name` equals the directory name, lowercase-hyphenated, unique, description substantial |
 | Provenance | No license headers, copyright notices, license-named files, or font assets |
-| Generated docs | README and org-chart tables match the tree |
+| Generated docs | README, social card and org chart match the tree |
+| Skill references | Every `department:skill` mentioned in the docs or in a skill body resolves |
+| US English spelling | No British spellings, by exact word form |
+| `## Never` blocks | Bullets inside one block agree on terminal punctuation |
+| OpenAI/Codex manifests | The second set of manifests matches the Claude ones |
+| Source catalog | Structure, license vocabulary, and every skill it names resolves |
+| Skill source files | Each skill's `references/sources.md` matches the catalog |
+| Verticals | Every vertical emits, and the emitted repository passes its own checks |
+| Manifests | The marketplace file and every `plugin.json` parse |
 
 **Stage your files first.** The surface guard reads `git ls-files`, so an unstaged file is invisible
 to it — the check will pass and then fail once committed. The script warns when untracked files are
@@ -80,6 +88,18 @@ British spellings and `--fix` rewrites them.
 The list is of exact word forms, not stems, because stems are a trap here: *analysis*, *analyst*,
 *specialist* and *realistic* are already correct US English and must never be rewritten.
 
+**A skill references only what it ships.** A skill is installed as part of its department plugin and
+nothing else comes with it, so a pointer to `docs/SOMETHING.md` resolves for a reader of this
+repository and dangles for everyone who installed the plugin. Say the thing inline instead. The
+exception is `executive:agent-hierarchy`, whose `docs/` paths are instructions to create those files
+in the reader's own repository, not references to files here.
+
+**`## Never` bullets agree with each other.** Two styles are in use and both are fine — bare
+imperatives ending in a period, or the chief-level `Never …` / `Do not …` lines without terminal
+punctuation. Mixing them inside a single block is what a list spliced in from somewhere else looks
+like, and it is how four skills ended up with a wrapped bullet's continuation stranded on an
+unrelated rule. `scripts/check-never-blocks.py` fails the build on a block that mixes them.
+
 ## Adding a department
 
 All five, in the same change, or the check fails:
@@ -96,6 +116,48 @@ department cannot end up missing from the README and the org chart while the che
 
 Give it a chief before any specialists — the department's remit should exist before things are added
 to it.
+
+## Two tools, one tree
+
+The skills install in Claude Code and in ChatGPT/Codex from the same repository. The `SKILL.md`
+format is common to both; only the manifests differ, and the second set is generated from the first
+by `scripts/build-port.py` and verified with `--check`.
+
+There is no Codex copy of the tree and there should never be one. A fork of 172 skills diverges
+within a quarter and the divergence is invisible — which is the whole argument for generating
+sixteen small manifests instead.
+
+## Adding a source
+
+`sources/*.toml` maps outside authorities — regulators, standards bodies, primary law, public
+datasets — to the skills whose answers they settle. `scripts/build-sources.py` emits each skill's
+list into its own `references/sources.md`, which is what an agent reads while it is answering.
+
+**References, never copies.** The catalog holds a URL and a judgment about it, never source
+material. That keeps D3 and D6 true and keeps the catalog live — a pointer to a regulator's site is
+right the moment the rule changes, and a copy is wrong the moment it does.
+
+**The `license` field is the load-bearing one.** Most of what a professional must cite is not open:
+ISO standards are sold, SANS papers are copyrighted, the FASB Codification needs an account. An
+entry classed wrongly as open invites an agent to reproduce text it was only allowed to read. When
+torn between two classes, take the more restrictive one. `sources/README.md` has the vocabulary.
+
+Link reachability is checked weekly by its own workflow rather than on every push, because a
+publisher being briefly down is not a reason to fail an unrelated pull request. Run
+`python3 scripts/check-sources.py --online` before you claim a `checked` date.
+
+## Adding to a vertical
+
+A vertical is the core made specific to one industry. `scripts/build-vertical.py` emits a standalone
+repository from the core plus a config under `verticals/<slug>/`.
+
+Generation is one-way and **generated output is never hand-edited** (D8). `dist/` is gitignored for
+that reason; what replaces a committed copy is `--verify`, which emits to a temporary directory and
+runs the emitted repository's own checks against it. CI does that on every push.
+
+A vertical adds skills and extends core skills. It never edits a core skill in place — a core skill
+that is wrong for every industry is wrong in the core, and fixing it there is what reaches every
+vertical on its next emit. `verticals/README.md` has the working details.
 
 ## Adding a file outside `plugins/`
 
